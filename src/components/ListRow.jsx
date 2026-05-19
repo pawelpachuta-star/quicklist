@@ -81,7 +81,7 @@ export function ListRow({
       onPointerUp={onPointerUp}
       onPointerCancel={onPointerCancel}
       style={{
-        position: 'relative', height: 52,
+        position: 'relative', minHeight: 52,
         userSelect: 'none', touchAction: 'pan-y',
         zIndex: dragging ? 5 : 1,
       }}
@@ -110,14 +110,16 @@ export function ListRow({
         </button>
       </div>
 
-      {/* Foreground row — no pointer handlers here; they live on the outer div */}
+      {/* Foreground row — normal flow so the row grows with wrapped text */}
       <div
         style={{
-          position: 'absolute', inset: 0,
+          position: 'relative', zIndex: 1,
+          minHeight: 52,
           background: 'var(--c-neutral-white)',
           borderBottom: '1px solid var(--c-neutral-light)',
-          display: 'flex', alignItems: 'center',
+          display: 'flex', alignItems: 'flex-start',
           gap: 12, paddingLeft: 16, paddingRight: 8,
+          paddingTop: 15, paddingBottom: 15,
           transform: `translateX(${dx}px)${dragging ? ' scale(1.015)' : ''}`,
           transition: dragging
             ? 'transform 0ms, box-shadow 160ms ease'
@@ -157,7 +159,7 @@ export function ListRow({
           textDecorationThickness: '1.5px',
           fontWeight: item.completed ? 400 : 450,
           transition: 'color 140ms ease',
-          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+          overflowWrap: 'break-word', wordBreak: 'break-word',
         }}>
           {item.text}
         </div>
@@ -169,9 +171,10 @@ export function ListRow({
             {...dragListeners}
             aria-label="Drag to reorder"
             style={{
-              width: 36, height: '100%',
+              width: 36, height: 22,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               color: 'var(--c-neutral-border)', cursor: 'grab', touchAction: 'none',
+              flexShrink: 0,
             }}
           >
             <DragIcon size={18} />
