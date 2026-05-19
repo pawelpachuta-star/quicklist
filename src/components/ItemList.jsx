@@ -140,27 +140,29 @@ export function ItemList({ items, accent, onToggle, onDelete, onReorder, reveale
             expanded={completedExpanded}
             onToggle={() => setCompletedExpanded(v => !v)}
           />
+          {/* grid-template-rows animates to actual content height, unlike max-height hacks */}
           <div style={{
-            overflow: 'hidden',
-            maxHeight: completedExpanded ? completed.length * 52 : 0,
-            transition: 'max-height 280ms cubic-bezier(.2,.7,.2,1)',
-            background: 'var(--c-neutral-white)',
+            display: 'grid',
+            gridTemplateRows: completedExpanded ? '1fr' : '0fr',
+            transition: 'grid-template-rows 280ms cubic-bezier(.2,.7,.2,1)',
           }}>
-            {completed.map(item => (
-              <div key={item.id}>
-                <ListRow
-                  item={item}
-                  accent={accent}
-                  dragging={false}
-                  dragListeners={null}
-                  onToggle={onToggle}
-                  onDelete={onDelete}
-                  isRevealed={revealedId === item.id}
-                  onReveal={setRevealedId}
-                  onCloseReveal={(id) => { if (revealedId === id) setRevealedId(null) }}
-                />
-              </div>
-            ))}
+            <div style={{ overflow: 'hidden', background: 'var(--c-neutral-white)' }}>
+              {completed.map(item => (
+                <div key={item.id}>
+                  <ListRow
+                    item={item}
+                    accent={accent}
+                    dragging={false}
+                    dragListeners={null}
+                    onToggle={onToggle}
+                    onDelete={onDelete}
+                    isRevealed={revealedId === item.id}
+                    onReveal={setRevealedId}
+                    onCloseReveal={(id) => { if (revealedId === id) setRevealedId(null) }}
+                  />
+                </div>
+              ))}
+            </div>
           </div>
         </>
       )}

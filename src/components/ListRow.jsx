@@ -55,8 +55,19 @@ export function ListRow({
     if (!startRef.current) return
     if (intentRef.current === 'h') {
       const open = dx < -REVEAL * 0.45
-      if (open) { setDx(-REVEAL); onReveal?.(item.id) }
-      else { setDx(0); onCloseReveal?.(item.id) }
+      if (open) {
+        if (item.completed) {
+          // Slide off-screen then delete — no confirmation tap needed
+          setDx(-400)
+          setTimeout(() => onDelete?.(item.id), 200)
+        } else {
+          setDx(-REVEAL)
+          onReveal?.(item.id)
+        }
+      } else {
+        setDx(0)
+        onCloseReveal?.(item.id)
+      }
     } else if (intentRef.current === null) {
       if (isRevealed) onCloseReveal?.(item.id)
       else onToggle?.(item.id)
