@@ -16,6 +16,8 @@ function TabButton({ list, active, tabRef, onTap, onLongPress }) {
   return (
     <button
       ref={tabRef}
+      aria-label={list.name}
+      aria-pressed={active}
       onPointerDown={onPointerDown}
       onPointerUp={onPointerUp}
       onPointerLeave={cancel}

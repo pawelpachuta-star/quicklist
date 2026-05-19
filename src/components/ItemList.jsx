@@ -10,12 +10,13 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { ListRow } from './ListRow.jsx'
-import { ChevronDown, CheckIcon } from './Icon.jsx'
+import { ChevronDown, PlusIcon } from './Icon.jsx'
 
 function SectionHeader({ count, expanded, onToggle }) {
   return (
     <button
       onClick={onToggle}
+      aria-label={`${expanded ? 'Collapse' : 'Expand'} completed items`}
       style={{
         width: '100%', height: 44, background: 'transparent', border: 'none',
         borderTop: '1px solid var(--c-neutral-light)',
@@ -54,21 +55,20 @@ function EmptyState({ accent }) {
         width: 56, height: 56, borderRadius: 999,
         background: `${accent}14`,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        color: accent,
       }}>
-        <CheckIcon size={28} stroke={2} />
+        <PlusIcon size={26} stroke={1.75} color={accent} />
       </div>
       <div style={{ fontSize: 16, fontWeight: 500, color: 'var(--c-neutral-section)' }}>
-        All caught up.
+        Nothing here yet.
       </div>
       <div style={{ fontSize: 14, color: 'var(--c-neutral-placeholder)', lineHeight: '20px', maxWidth: 240 }}>
-        Tap the field below to add your first one.
+        Add your first item below.
       </div>
     </div>
   )
 }
 
-function SortableRow({ item, accent, onToggle, onDelete, revealedId, setRevealedId }) {
+function SortableRow({ item, accent, onToggle, onDelete, revealedId, setRevealedId, animatingOut }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id })
 
   return (
@@ -79,6 +79,7 @@ function SortableRow({ item, accent, onToggle, onDelete, revealedId, setRevealed
         transition: isDragging ? undefined : transition,
         zIndex: isDragging ? 5 : 1,
         position: 'relative',
+        animation: animatingOut ? 'ql-slide-out 180ms ease forwards' : 'ql-fade 200ms ease',
       }}
       {...attributes}
     >
@@ -99,9 +100,22 @@ function SortableRow({ item, accent, onToggle, onDelete, revealedId, setRevealed
 
 export function ItemList({ items, accent, onToggle, onDelete, onReorder, revealedId, setRevealedId }) {
   const [completedExpanded, setCompletedExpanded] = useState(true)
+  const [pendingComplete, setPendingComplete] = useState(new Set())
 
   const active = items.filter(i => !i.completed)
   const completed = items.filter(i => i.completed)
+
+  // Intercept toggle for active→completed to animate the row out first
+  const handleToggle = (id) => {
+    if (pendingComplete.has(id)) return
+    const item = items.find(i => i.id === id)
+    if (item && !item.completed) {
+      setPendingComplete(prev => new Set([...prev, id]))
+      setTimeout(() => onToggle(id), 180)
+    } else {
+      onToggle(id)
+    }
+  }
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -115,18 +129,25 @@ export function ItemList({ items, accent, onToggle, onDelete, onReorder, reveale
     if (oldIdx !== -1 && newIdx !== -1) onReorder(oldIdx, newIdx)
   }
 
-  const rowProps = { accent, onToggle, onDelete, revealedId, setRevealedId }
-
   return (
     <div style={{ paddingBottom: 24 }}>
-      {active.length === 0 && <EmptyState accent={accent} />}
+      {items.length === 0 && <EmptyState accent={accent} />}
 
       {active.length > 0 && (
         <div style={{ background: 'var(--c-neutral-white)' }}>
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
             <SortableContext items={active.map(i => i.id)} strategy={verticalListSortingStrategy}>
               {active.map(item => (
-                <SortableRow key={item.id} item={item} {...rowProps} />
+                <SortableRow
+                  key={item.id}
+                  item={item}
+                  accent={accent}
+                  onToggle={handleToggle}
+                  onDelete={onDelete}
+                  revealedId={revealedId}
+                  setRevealedId={setRevealedId}
+                  animatingOut={pendingComplete.has(item.id)}
+                />
               ))}
             </SortableContext>
           </DndContext>
@@ -148,7 +169,7 @@ export function ItemList({ items, accent, onToggle, onDelete, onReorder, reveale
           }}>
             <div style={{ overflow: 'hidden', background: 'var(--c-neutral-white)' }}>
               {completed.map(item => (
-                <div key={item.id}>
+                <div key={item.id} style={{ animation: 'ql-fade 200ms ease' }}>
                   <ListRow
                     item={item}
                     accent={accent}

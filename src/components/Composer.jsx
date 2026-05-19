@@ -31,6 +31,7 @@ export function Composer({ list, onAdd }) {
       }}>
         <input
           ref={inputRef}
+          aria-label="New item"
           value={val}
           onChange={(e) => setVal(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Enter') submit() }}

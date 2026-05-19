@@ -182,7 +182,7 @@ export function ListRow({
             {...dragListeners}
             aria-label="Drag to reorder"
             style={{
-              width: 36, height: 22,
+              width: 36, height: 44,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               color: 'var(--c-neutral-border)', cursor: 'grab', touchAction: 'none',
               flexShrink: 0,

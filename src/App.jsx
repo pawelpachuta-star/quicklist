@@ -5,7 +5,7 @@ import { ItemList } from './components/ItemList.jsx'
 import { Composer } from './components/Composer.jsx'
 import { CategorySheet, CategoryMenu, ConfirmDialog } from './components/CategorySheet.jsx'
 import { SettingsPanel } from './components/SettingsPanel.jsx'
-import { ICON_REGISTRY, TodoIcon, SearchIcon, MoreIcon } from './components/Icon.jsx'
+import { ICON_REGISTRY, TodoIcon, SearchIcon, MoreIcon, PlusIcon } from './components/Icon.jsx'
 
 // ── Page (single category content area) ────────────────────────────────────
 function Page({ list, items, onToggle, onDelete, onReorder, revealedId, setRevealedId, pageCount }) {
@@ -262,41 +262,66 @@ export default function App() {
         onMenuTab={(id) => setMenuListId(id)}
       />
 
-      {/* Pages track */}
-      <div
-        onPointerDown={onTrackPointerDown}
-        onPointerMove={onTrackPointerMove}
-        onPointerUp={onTrackPointerUp}
-        onPointerCancel={onTrackPointerUp}
-        style={{ flex: 1, overflow: 'hidden', position: 'relative' }}
-      >
+      {/* Pages track or no-lists empty state */}
+      {lists.length === 0 ? (
         <div style={{
-          display: 'flex', height: '100%',
-          width: `${N * 100}%`,
-          transform: `translateX(-${pageIdx * (100 / N)}%)`,
-          transition: 'transform 320ms cubic-bezier(.2,.7,.2,1)',
+          flex: 1, display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center',
+          gap: 12, padding: '0 40px',
+          background: 'var(--c-neutral-bg)', textAlign: 'center',
         }}>
-          {lists.map((list) => (
-            <Page
-              key={list.id}
-              list={list}
-              pageCount={N}
-              items={itemsByListId[list.id] || []}
-              onToggle={(itemId) => handleToggle(list.id, itemId)}
-              onDelete={(itemId) => handleDelete(list.id, itemId)}
-              onReorder={(from, to) => handleReorder(list.id, from, to)}
-              revealedId={revealedId}
-              setRevealedId={setRevealedId}
-            />
-          ))}
+          <div style={{
+            width: 56, height: 56, borderRadius: 16,
+            background: 'var(--c-neutral-bg-hover)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <PlusIcon size={26} stroke={1.75} color="var(--c-neutral-border)" />
+          </div>
+          <div style={{ fontFamily: 'var(--font-sans)', fontSize: 17, fontWeight: 600, color: 'var(--c-neutral-section)' }}>
+            No lists yet
+          </div>
+          <div style={{ fontFamily: 'var(--font-sans)', fontSize: 14, color: 'var(--c-neutral-placeholder)', lineHeight: '20px', maxWidth: 220 }}>
+            Tap "+" in the tab bar above to create your first list.
+          </div>
         </div>
-      </div>
+      ) : (
+        <>
+          <div
+            onPointerDown={onTrackPointerDown}
+            onPointerMove={onTrackPointerMove}
+            onPointerUp={onTrackPointerUp}
+            onPointerCancel={onTrackPointerUp}
+            style={{ flex: 1, overflow: 'hidden', position: 'relative' }}
+          >
+            <div style={{
+              display: 'flex', height: '100%',
+              width: `${N * 100}%`,
+              transform: `translateX(-${pageIdx * (100 / N)}%)`,
+              transition: 'transform 320ms cubic-bezier(.2,.7,.2,1)',
+            }}>
+              {lists.map((list) => (
+                <Page
+                  key={list.id}
+                  list={list}
+                  pageCount={N}
+                  items={itemsByListId[list.id] || []}
+                  onToggle={(itemId) => handleToggle(list.id, itemId)}
+                  onDelete={(itemId) => handleDelete(list.id, itemId)}
+                  onReorder={(from, to) => handleReorder(list.id, from, to)}
+                  revealedId={revealedId}
+                  setRevealedId={setRevealedId}
+                />
+              ))}
+            </div>
+          </div>
 
-      {currentList && (
-        <Composer
-          list={currentList}
-          onAdd={(text) => handleAdd(currentList.id, text)}
-        />
+          {currentList && (
+            <Composer
+              list={currentList}
+              onAdd={(text) => handleAdd(currentList.id, text)}
+            />
+          )}
+        </>
       )}
 
       {/* Overlays */}
