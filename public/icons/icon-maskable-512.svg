@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Full-bleed background; Q is within the maskable safe zone (central 80%) -->
+  <rect width="512" height="512" fill="#162146"/>
+  <text x="256" y="330" text-anchor="middle"
+        font-family="-apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif"
+        font-size="230" font-weight="700" fill="#ffffff">Q</text>
+</svg>
